@@ -112,17 +112,23 @@ public class GoogleService {
         };
     }
 
-    public static int checkIfNameExists(List<List<Object>> values, String name){
-        int rowIndex = -1;
+    public static int checkIfNameExists(List<List<Object>> values, String name) {
+        if (values == null || values.isEmpty()) {
+            return -1;
+        }
 
-        for (int i = 0; i < values.size(); i++){
+        for (int i = 0; i < values.size(); i++) {
             List<Object> row = values.get(i);
-            if (!row.isEmpty() && row.get(0).toString().equalsIgnoreCase(name)){
-                return i + 1;
+            if (!row.isEmpty()) {
+                String cellValue = row.get(0).toString().trim().toLowerCase();
+                if (cellValue.equals(name.trim().toLowerCase())) {
+                    return i + 1;
+                }
             }
         }
-        return rowIndex;
+        return -1;
     }
+
 
 
 }
