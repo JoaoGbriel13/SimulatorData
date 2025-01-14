@@ -33,22 +33,19 @@ public class SimulatorDataService {
 
     private String formatLapTime(BigDecimal lapTime) {
         if (lapTime == null || lapTime.compareTo(BigDecimal.ZERO) <= 0) {
-            return "0:00.0"; // Retorna um tempo padrão se o valor for inválido.
+            return "0:00.0";
         }
 
-        // Arredondar o valor para 3 casas decimais (milissegundos)
         lapTime = lapTime.setScale(3, RoundingMode.HALF_UP);
 
-        // Separar os valores em inteiros e decimais
         int totalSeconds = lapTime.intValue(); // Parte inteira
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
 
-        // Milissegundos
         BigDecimal fractionalPart = lapTime.remainder(BigDecimal.ONE); // Parte decimal
         int milliseconds = fractionalPart.multiply(BigDecimal.valueOf(1000)).intValue();
 
         // Formatar o tempo no formato "minutos:segundos.milissegundos"
-        return String.format("0%d:%02d.%d", minutes, seconds, milliseconds / 100);
+        return String.format("%d:%02d.%d", minutes, seconds, milliseconds / 100);
     }
 }
