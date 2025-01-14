@@ -77,7 +77,7 @@ public class GoogleService {
                     .setData(Arrays.asList(
                             new ValueRange()
                                     .setRange("DriversDB!E" + nameExistsRow + ":F" + nameExistsRow)
-                                    .setValues(List.of(List.of(2600, formattedAvgFuel, formattedAvgFuel))),
+                                    .setValues(List.of(List.of(formattedAvgFuel, formattedAvgFuel))),
                             fillConditionsColumn(simulatorData.getTrackStateEnum(), avgLap, nameExistsRow)
                     ));
         }
