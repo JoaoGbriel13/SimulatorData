@@ -48,7 +48,7 @@ public class GoogleService {
     public static void writeData(SimulatorData simulatorData, Double avgFuel, String avgLap) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
 
-        String range =  "DriversDB!A:A";
+        String range =  "DriversDB!A:A9";
 
         ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
         List<List<Object>> values = response.getValues();
