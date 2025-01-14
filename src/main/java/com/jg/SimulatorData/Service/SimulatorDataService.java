@@ -23,7 +23,6 @@ public class SimulatorDataService {
        simulatorDataRepository.save(simulatorData);
         if (simulatorData.getFuelUsed() > 0){
             Double fuelAVG = simulatorDataRepository.getFuelAVG(simulatorData.getCar(), simulatorData.getTrack());
-            System.out.println(fuelAVG);
             String lapAVGFormatted = formatLapTime(simulatorDataRepository.getLapTimeAVG(simulatorData.getCar(),
                     simulatorData.getTrack(), simulatorData.getTrackStateEnum(), simulatorData.getDriver()));
             GoogleService.writeData(simulatorData, fuelAVG, lapAVGFormatted);
@@ -45,7 +44,6 @@ public class SimulatorDataService {
         BigDecimal fractionalPart = lapTime.remainder(BigDecimal.ONE); // Parte decimal
         int milliseconds = fractionalPart.multiply(BigDecimal.valueOf(1000)).intValue();
 
-        // Formatar o tempo no formato "minutos:segundos.milissegundos"
         return String.format("%d:%02d.%d", minutes, seconds, milliseconds / 100);
     }
 }

@@ -55,7 +55,6 @@ public class GoogleService {
         int nextEmptyRow = (values == null || values.isEmpty()) ? 1 : values.size() + 1;
         String formattedAvgFuel = String.format(Locale.US, "%.2f", avgFuel);
         int nameExistsRow = checkIfNameExists(values, simulatorData.getDriver());
-        System.out.println(avgLap);
 
 
         BatchUpdateValuesRequest body;

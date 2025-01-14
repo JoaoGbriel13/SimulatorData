@@ -21,7 +21,7 @@ public interface SimulatorDataRepository extends JpaRepository<SimulatorData, Lo
             "AND d.track LIKE '%' || :track || '%' " +
             "AND d.car LIKE '%' || :car || '%' " +
             "AND d.track_state_enum LIKE '%' || :state || '%' " +
-            "AND d.driver = ':driver' ")
+            "AND d.driver = :driver ")
     BigDecimal getLapTimeAVG(@Param("car")String car, @Param("track") String track, @Param("state") String state,@Param("driver") String driver);
 
 
