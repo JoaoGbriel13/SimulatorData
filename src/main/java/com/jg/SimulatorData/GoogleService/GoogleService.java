@@ -96,6 +96,7 @@ public class GoogleService {
     }
 
     public static ValueRange fillConditionsColumn(String condition, String avgLap, int row){
+        avgLap = String.format("\"%s\"", avgLap);
         return switch (condition.toLowerCase()) {
             case "dry" ->
                     new ValueRange().setRange("DriversDB!H" + row + ":H" + row).setValues(List.of(Collections.singletonList(
