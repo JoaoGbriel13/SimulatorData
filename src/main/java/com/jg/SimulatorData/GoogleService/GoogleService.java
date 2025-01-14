@@ -13,8 +13,10 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.jg.SimulatorData.Model.SimulatorData;
 import com.jg.SimulatorData.Utils.TokenManager;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
@@ -24,14 +26,16 @@ public class GoogleService {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKEN = TokenManager.getGoogleCredentials();
 
-    public static Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
+    public static Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {;
         GoogleCredentials credentials;
-        try(FileInputStream serviceAcount = new FileInputStream(TOKEN)) {
-            credentials = GoogleCredentials.fromStream(serviceAcount)
-                    .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
-        }catch (Exception e){
-            throw new RuntimeException(e);
+        try {
+            credentials = GoogleCredentials.fromStream(
+                    new ByteArrayInputStream(TOKEN.getBytes(StandardCharsets.UTF_8))
+            ).createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS));
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao carregar as credenciais do Google a partir do JSON: " + e.getMessage(), e);
         }
+
         HttpRequestInitializer httpRequestInitializer = new HttpCredentialsAdapter(credentials);
         return new Sheets.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
@@ -39,6 +43,7 @@ public class GoogleService {
                 httpRequestInitializer
         ).setApplicationName(APP_NAME).build();
     }
+
 
     public static void writeData(SimulatorData simulatorData, Double avgFuel, String avgLap) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
