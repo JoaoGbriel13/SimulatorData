@@ -76,7 +76,7 @@ public class GoogleService {
                     .setValueInputOption("RAW")
                     .setData(Arrays.asList(
                             new ValueRange()
-                                    .setRange("DriversDB!D" + nameExistsRow + ":F" + nameExistsRow)
+                                    .setRange("DriversDB!E" + nameExistsRow + ":F" + nameExistsRow)
                                     .setValues(List.of(List.of(2600, formattedAvgFuel, formattedAvgFuel))),
                             fillConditionsColumn(simulatorData.getTrackStateEnum(), avgLap, nameExistsRow)
                     ));
