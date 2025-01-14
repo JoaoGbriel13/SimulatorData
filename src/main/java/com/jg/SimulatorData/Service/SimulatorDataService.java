@@ -32,18 +32,21 @@ public class SimulatorDataService {
 
     private String formatLapTime(BigDecimal lapTime) {
         if (lapTime == null || lapTime.compareTo(BigDecimal.ZERO) <= 0) {
-            return "0:00.0";
+            return "00:00:00.000";
         }
 
         lapTime = lapTime.setScale(3, RoundingMode.HALF_UP);
 
-        int totalSeconds = lapTime.intValue(); // Parte inteira
-        int minutes = totalSeconds / 60;
+        int totalSeconds = lapTime.intValue();
+
+        int hours = totalSeconds / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
         int seconds = totalSeconds % 60;
 
         BigDecimal fractionalPart = lapTime.remainder(BigDecimal.ONE); // Parte decimal
         int milliseconds = fractionalPart.multiply(BigDecimal.valueOf(1000)).intValue();
 
-        return String.format("00:0%d:%02d.%d", minutes, seconds, milliseconds / 100);
+        return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds);
     }
+
 }

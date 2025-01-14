@@ -48,30 +48,30 @@ public class GoogleService {
     public static void writeData(SimulatorData simulatorData, Double avgFuel, String avgLap) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
 
-        String range =  "DriversDB!A:A9";
-
+        String range = "DriversDB!A:A";
         ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
         List<List<Object>> values = response.getValues();
-        int nextEmptyRow = (values == null || values.isEmpty()) ? 1 : values.size() + 1;
+
+        int nextEmptyRow = findNextEmptyRow(values);
         String formattedAvgFuel = String.format(Locale.US, "%.2f", avgFuel);
         int nameExistsRow = checkIfNameExists(values, simulatorData.getDriver());
 
-
         BatchUpdateValuesRequest body;
-        if (nameExistsRow == - 1) {
+        if (nameExistsRow == -1) {
+            // Novo registro
             body = new BatchUpdateValuesRequest()
                     .setValueInputOption("RAW")
                     .setData(Arrays.asList(
                             new ValueRange()
                                     .setRange("DriversDB!A" + nextEmptyRow + ":A" + nextEmptyRow)
-                                    .setValues(List.of(Collections.singletonList(simulatorData.getDriver())
-                                    )),
+                                    .setValues(List.of(Collections.singletonList(simulatorData.getDriver()))),
                             new ValueRange()
                                     .setRange("DriversDB!C" + nextEmptyRow + ":F" + nextEmptyRow)
                                     .setValues(List.of(List.of("", 2600, formattedAvgFuel, formattedAvgFuel))),
                             fillConditionsColumn(simulatorData.getTrackStateEnum(), avgLap, nextEmptyRow)
                     ));
-        }else{
+        } else {
+            // Atualização de registro existente
             body = new BatchUpdateValuesRequest()
                     .setValueInputOption("RAW")
                     .setData(Arrays.asList(
@@ -82,6 +82,17 @@ public class GoogleService {
                     ));
         }
         service.spreadsheets().values().batchUpdate(SPREADSHEET_ID, body).execute();
+    }
+    public static int findNextEmptyRow(List<List<Object>> values) {
+        if (values == null || values.isEmpty()) {
+            return 1; //
+        }
+        for (int i = 0; i < values.size(); i++) {
+            if (values.get(i).isEmpty() || values.get(i).get(0).toString().trim().isEmpty()) {
+                return i + 1;
+            }
+        }
+        return values.size() + 1;
     }
 
     public static ValueRange fillConditionsColumn(String condition, String avgLap, int row){
