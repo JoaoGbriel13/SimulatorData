@@ -8,6 +8,9 @@ WORKDIR /app
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
+# Dá permissão de execução ao Maven Wrapper
+RUN chmod +x ./mvnw
+
 # Realiza o download das dependências para cache
 RUN ./mvnw dependency:resolve
 
