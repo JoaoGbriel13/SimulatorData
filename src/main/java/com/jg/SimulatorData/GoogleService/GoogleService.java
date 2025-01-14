@@ -22,7 +22,7 @@ import java.util.*;
 
 public class GoogleService {
     private static final String APP_NAME = "Sheets Automation";
-    private static final String SPREADSHEET_ID = "1A8DfijhqqgSZGANv0H7_oh8Z0lFOpT-PjOu46pyOhiA/edit?gid=1501935703";
+    private static final String SPREADSHEET_ID = "1A8DfijhqqgSZGANv0H7_oh8Z0lFOpT-PjOu46pyOhiA";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKEN = TokenManager.getGoogleCredentials();
 
