@@ -44,6 +44,6 @@ public class SimulatorDataService {
         BigDecimal fractionalPart = lapTime.remainder(BigDecimal.ONE); // Parte decimal
         int milliseconds = fractionalPart.multiply(BigDecimal.valueOf(1000)).intValue();
 
-        return String.format("%d:%02d.%d", minutes, seconds, milliseconds / 100);
+        return String.format("0%d:%02d.%d", minutes, seconds, milliseconds / 100);
     }
 }
