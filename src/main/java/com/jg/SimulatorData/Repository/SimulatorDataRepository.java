@@ -13,8 +13,9 @@ public interface SimulatorDataRepository extends JpaRepository<SimulatorData, Lo
             "WHERE d.fuel_used > 0 " +
             "AND d.car LIKE '%' || :car || '%' " +
             "AND d.track LIKE '%' || :track || '%' " +
-            "AND d.lap_time_numeric > 0")
-    Double getFuelAVG(@Param("car")String car, @Param("track") String track);
+            "AND d.lap_time_numeric > 0 " +
+            "AND d.driver = :driver")
+    Double getFuelAVG(@Param("car")String car, @Param("track") String track, String driver);
 
     @Query(nativeQuery = true, value = "SELECT AVG(d.lap_time_numeric) FROM tb_data d " +
             "WHERE d.lap_time_numeric > 0 " +
