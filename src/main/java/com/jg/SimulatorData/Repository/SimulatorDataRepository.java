@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 
 public interface SimulatorDataRepository extends JpaRepository<SimulatorData, Long> {
-    @Query(nativeQuery = true, value = "SELECT PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY d.fuel_used) " +
+    @Query(nativeQuery = true, value = "SELECT AVG(d.fuel_used) " +
             "FROM tb_data d " +
             "WHERE d.fuel_used > 0 " +
             "AND d.car LIKE '%' || :car || '%' " +
