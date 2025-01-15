@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class SimulatorDataService {
@@ -23,30 +26,30 @@ public class SimulatorDataService {
        simulatorDataRepository.save(simulatorData);
         if (simulatorData.getFuelUsed() > 0){
             Double fuelAVG = simulatorDataRepository.getFuelAVG(simulatorData.getCar(), simulatorData.getTrack());
-            String lapAVGFormatted = formatLapTime(simulatorDataRepository.getLapTimeAVG(simulatorData.getCar(),
+            String lapAVGFormatted = formatLapTimeWithJavaTime(simulatorDataRepository.getLapTimeAVG(simulatorData.getCar(),
                     simulatorData.getTrack(), simulatorData.getTrackStateEnum(), simulatorData.getDriver()));
             GoogleService.writeData(simulatorData, fuelAVG, lapAVGFormatted);
         }
         return(simulatorData);
     }
 
-    private String formatLapTime(BigDecimal lapTime) {
+    public static String formatLapTimeWithJavaTime(BigDecimal lapTime) {
         if (lapTime == null || lapTime.compareTo(BigDecimal.ZERO) <= 0) {
             return "00:00:00.000";
         }
 
         lapTime = lapTime.setScale(3, RoundingMode.HALF_UP);
 
-        int totalSeconds = lapTime.intValue();
+        long totalSeconds = lapTime.longValue();
+        Duration duration = Duration.ofSeconds(totalSeconds);
 
-        int hours = totalSeconds / 3600;
-        int minutes = (totalSeconds % 3600) / 60;
-        int seconds = totalSeconds % 60;
+        long milliseconds = lapTime.remainder(BigDecimal.ONE).multiply(BigDecimal.valueOf(1000)).longValue();
+        duration = duration.plusMillis(milliseconds);
 
-        BigDecimal fractionalPart = lapTime.remainder(BigDecimal.ONE); // Parte decimal
-        int milliseconds = fractionalPart.multiply(BigDecimal.valueOf(1000)).intValue();
+        LocalTime localTime = LocalTime.ofSecondOfDay(duration.getSeconds()).plusNanos(duration.getNano());
 
-        return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+        return localTime.format(formatter);
     }
 
 }
