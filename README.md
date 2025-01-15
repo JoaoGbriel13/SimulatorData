@@ -1,4 +1,3 @@
-```markdown
 # Simulator Data Integration
 
 Este projeto integra dados de simulação do iRacing com o Google Sheets, utilizando uma API em Java Spring e um aplicativo em Python. Ele automatiza o processamento de dados, calculando médias e armazenando informações relevantes em uma planilha do Google.
