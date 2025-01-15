@@ -60,7 +60,7 @@ public class GoogleService {
         if (nameExistsRow == -1) {
             // Novo registro
             body = new BatchUpdateValuesRequest()
-                    .setValueInputOption("RAW")
+                    .setValueInputOption("USER_ENTERED")
                     .setData(Arrays.asList(
                             new ValueRange()
                                     .setRange("DriversDB!A" + nextEmptyRow + ":A" + nextEmptyRow)
@@ -73,7 +73,7 @@ public class GoogleService {
         } else {
             // Atualização de registro existente
             body = new BatchUpdateValuesRequest()
-                    .setValueInputOption("RAW")
+                    .setValueInputOption("USER_ENTERED")
                     .setData(Arrays.asList(
                             new ValueRange()
                                     .setRange("DriversDB!E" + nameExistsRow + ":F" + nameExistsRow)
@@ -98,9 +98,9 @@ public class GoogleService {
     public static ValueRange fillConditionsColumn(String condition, String avgLap, int row){
         return switch (condition.toLowerCase()) {
             case "dry" ->
-                    new ValueRange().setRange("DriversDB!H" + row + ":H" + row).setValues(List.of(Collections.singletonList(
-                            avgLap
-                    )));
+                    new ValueRange().setRange("DriversDB!H" + row + ":H" + row).setValues(
+                            List.of(Collections.singletonList(avgLap))
+                    );
             case "mostly dry" -> new ValueRange().setRange("DriversDB!J" + row + ":J" + row).setValues(
                     List.of(Collections.singletonList(avgLap))
             );
