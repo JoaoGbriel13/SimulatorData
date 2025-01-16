@@ -21,13 +21,15 @@ public interface SimulatorDataRepository extends JpaRepository<SimulatorData, Lo
             "AND d.driver = :driver")
     Optional<FuelAverageDTO> getFuelAverage(@Param("car") String car, @Param("track") String track, @Param("driver") String driver);
 
-    @Query(nativeQuery = true, value = "SELECT AVG(d.lap_time_numeric) FROM tb_data d " +
+    @Query(nativeQuery = true, value = "SELECT PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY d.lap_time_numeric) " +
+            "FROM tb_data d " +
             "WHERE d.lap_time_numeric > 0 " +
             "AND d.track LIKE '%' || :track || '%' " +
             "AND d.car LIKE '%' || :car || '%' " +
             "AND d.track_state_enum LIKE '%' || :state || '%' " +
-            "AND d.driver = :driver ")
-    BigDecimal getLapTimeAVG(@Param("car")String car, @Param("track") String track, @Param("state") String state,@Param("driver") String driver);
+            "AND d.driver = :driver")
+    BigDecimal getLapTimeAVG(@Param("car") String car, @Param("track") String track, @Param("state") String state, @Param("driver") String driver);
+
 
 
 }
