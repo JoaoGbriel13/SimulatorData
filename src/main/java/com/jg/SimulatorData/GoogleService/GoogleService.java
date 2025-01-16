@@ -10,11 +10,11 @@ import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.jg.SimulatorData.DTO.FuelAverageDTO;
 import com.jg.SimulatorData.Model.SimulatorData;
 import com.jg.SimulatorData.Utils.TokenManager;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -45,7 +45,7 @@ public class GoogleService {
     }
 
 
-    public static void writeData(SimulatorData simulatorData, Double avgFuel, String avgLap) throws GeneralSecurityException, IOException {
+    public static void writeData(SimulatorData simulatorData, FuelAverageDTO avgFuel, String avgLap) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
 
         String range = "DriversDB!A:A";
@@ -53,7 +53,8 @@ public class GoogleService {
         List<List<Object>> values = response.getValues();
 
         int nextEmptyRow = findNextEmptyRow(values);
-        String formattedAvgFuel = String.format(Locale.US, "%.2f", avgFuel);
+        String formattedAvgFuelDry = String.format(Locale.US, "%.2f", avgFuel.getFuelDry());
+        String formattedAvgFuelWet = String.format(Locale.US, "%.2f", avgFuel.getFuelRain());
         int nameExistsRow = checkIfNameExists(values, simulatorData.getDriver());
 
         BatchUpdateValuesRequest body;
@@ -67,7 +68,7 @@ public class GoogleService {
                                     .setValues(List.of(Collections.singletonList(simulatorData.getDriver()))),
                             new ValueRange()
                                     .setRange("DriversDB!C" + nextEmptyRow + ":F" + nextEmptyRow)
-                                    .setValues(List.of(List.of("", 2600, formattedAvgFuel, formattedAvgFuel))),
+                                    .setValues(List.of(List.of("", 2600, formattedAvgFuelDry, formattedAvgFuelWet))),
                             fillConditionsColumn(simulatorData.getTrackStateEnum(), avgLap, nextEmptyRow)
                     ));
         } else {
@@ -77,7 +78,7 @@ public class GoogleService {
                     .setData(Arrays.asList(
                             new ValueRange()
                                     .setRange("DriversDB!E" + nameExistsRow + ":F" + nameExistsRow)
-                                    .setValues(List.of(List.of(formattedAvgFuel, formattedAvgFuel))),
+                                    .setValues(List.of(List.of(formattedAvgFuelDry, formattedAvgFuelWet))),
                             fillConditionsColumn(simulatorData.getTrackStateEnum(), avgLap, nameExistsRow)
                     ));
         }

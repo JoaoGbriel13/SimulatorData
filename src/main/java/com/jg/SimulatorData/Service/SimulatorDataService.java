@@ -1,6 +1,7 @@
 package com.jg.SimulatorData.Service;
 
 
+import com.jg.SimulatorData.DTO.FuelAverageDTO;
 import com.jg.SimulatorData.GoogleService.GoogleService;
 import com.jg.SimulatorData.Model.SimulatorData;
 import com.jg.SimulatorData.Repository.SimulatorDataRepository;
@@ -13,6 +14,7 @@ import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class SimulatorDataService {
@@ -25,10 +27,12 @@ public class SimulatorDataService {
     public SimulatorData saveData(SimulatorData simulatorData) throws GeneralSecurityException, IOException {
        simulatorDataRepository.save(simulatorData);
         if (simulatorData.getFuelUsed() > 0){
-            Double fuelAVG = simulatorDataRepository.getFuelAVG(simulatorData.getCar(), simulatorData.getTrack(), simulatorData.getDriver());
+            FuelAverageDTO fuelAVGList = simulatorDataRepository.getFuelAverage(
+                    simulatorData.getCar(), simulatorData.getTrack(), simulatorData.getDriver()
+            ).get();
             String lapAVGFormatted = formatLapTime(simulatorDataRepository.getLapTimeAVG(simulatorData.getCar(),
                     simulatorData.getTrack(), simulatorData.getTrackStateEnum(), simulatorData.getDriver()));
-            GoogleService.writeData(simulatorData, fuelAVG, lapAVGFormatted);
+            GoogleService.writeData(simulatorData, fuelAVGList, lapAVGFormatted);
         }
         return(simulatorData);
     }
