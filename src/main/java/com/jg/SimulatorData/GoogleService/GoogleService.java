@@ -110,7 +110,7 @@ public class GoogleService {
             case "lightly wet" -> new ValueRange().setRange("DriversDB!L" + row + ":L" + row).setValues(
                     List.of(Collections.singletonList(avgLap))
             );
-            case "wet" -> new ValueRange().setRange("DriversDB!M" + row + ":M" + row).setValues(
+            case "moderately wet" -> new ValueRange().setRange("DriversDB!M" + row + ":M" + row).setValues(
                     List.of(Collections.singletonList(avgLap))
             );
             case "very wet" -> new ValueRange().setRange("DriversDB!N" + row + ":N" + row).setValues(
