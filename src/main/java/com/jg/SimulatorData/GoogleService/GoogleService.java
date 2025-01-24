@@ -139,10 +139,8 @@ public class GoogleService {
                         Arrays.asList(
                                new ValueRange()
                                        .setRange("DB!A" + nextEmptyRow + ":N" + nextEmptyRow)
-                                       .setValues(
-                                               List.of(List.of(insertableValues))
+                                       .setValues(Collections.singletonList(insertableValues)
                                        )
-
                         )
                 );
         sheetsService.spreadsheets().values().batchUpdate(SPREADSHEET_ID, request).execute();
