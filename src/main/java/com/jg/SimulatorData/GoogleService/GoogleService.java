@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GoogleService {
     private static final String APP_NAME = "Sheets Automation";
@@ -124,6 +125,29 @@ public class GoogleService {
         };
     }
 
+    public static void unfilteredData(SimulatorData simulatorData) throws GeneralSecurityException, IOException {
+        Sheets sheetsService = getGoogleSheetService();
+        String range = "DB!A:A";
+        ValueRange response = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
+        List<List<Object>> objects = response.getValues();
+        int nextEmptyRow = findNextEmptyRow(objects);
+        List<Object> insertableValues = getValuesList(simulatorData);
+
+        BatchUpdateValuesRequest request = new BatchUpdateValuesRequest()
+                .setValueInputOption("USER_ENTERED")
+                .setData(
+                        Arrays.asList(
+                               new ValueRange()
+                                       .setRange("DB!A" + nextEmptyRow + ":N" + nextEmptyRow)
+                                       .setValues(
+                                               List.of(List.of(insertableValues))
+                                       )
+
+                        )
+                );
+        sheetsService.spreadsheets().values().batchUpdate(SPREADSHEET_ID, request).execute();
+    }
+
     public static int checkIfNameExists(List<List<Object>> values, String name) {
         if (values == null || values.isEmpty()) {
             return -1;
@@ -141,6 +165,41 @@ public class GoogleService {
         return -1;
     }
 
+    private static List<Object> getValuesList(SimulatorData simulatorData){
+        List<Object> values = Arrays.stream(simulatorData.getClass().getDeclaredFields())
+                .peek(field -> field.setAccessible(true))
+                .map(field -> {
+                    try {
+                        return field.get(simulatorData);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
+        return values;
+    }
 
+    public static List<String> getCarAndTrack() throws GeneralSecurityException, IOException {
+        Sheets sheetsService = getGoogleSheetService();
+        String carRange = "Stints!J10:J10";
+        String trackRange = "Stints!L10:L10";
+        List<String> carTrackList = new ArrayList<>();
+
+        ValueRange carValueRange = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, carRange).execute();
+        ValueRange trackValueRange = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, trackRange).execute();
+
+        List<List<Object>> carValues = carValueRange.getValues();
+        List<List<Object>> trackValues = trackValueRange.getValues();
+
+        for (int i = 0; i < carValues.size(); i++){
+            List<Object> carRow = carValues.get(i);
+            List<Object> trackRow = trackValues.get(i);
+
+            if (!carRow.isEmpty() && !trackRow.isEmpty()){
+                carTrackList.add(carRow.get(i).toString());
+                carTrackList.add(trackRow.get(i).toString());
+            }
+        }
+        return carTrackList;
+    }
 
 }

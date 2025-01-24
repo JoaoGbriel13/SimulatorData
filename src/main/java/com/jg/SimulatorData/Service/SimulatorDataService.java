@@ -25,14 +25,10 @@ public class SimulatorDataService {
     }
 
     public SimulatorData saveData(SimulatorData simulatorData) throws GeneralSecurityException, IOException {
-       simulatorDataRepository.save(simulatorData);
-        if (simulatorData.getFuelUsed() > 0){
-            FuelAverageDTO fuelAVGList = simulatorDataRepository.getFuelAverage(
-                    simulatorData.getCar(), simulatorData.getTrack(), simulatorData.getDriver()
-            ).get();
-            String lapAVGFormatted = formatLapTime(simulatorDataRepository.getLapTimeAVG(simulatorData.getCar(),
-                    simulatorData.getTrack(), simulatorData.getTrackStateEnum(), simulatorData.getDriver()));
-            GoogleService.writeData(simulatorData, fuelAVGList, lapAVGFormatted);
+        List<String> carAndTrack = GoogleService.getCarAndTrack();
+        simulatorDataRepository.save(simulatorData);
+        if (carAndTrack.get(0).contains(simulatorData.getCar()) && carAndTrack.get(1).contains(simulatorData.getTrack())){
+            GoogleService.unfilteredData(simulatorData);
         }
         return(simulatorData);
     }
