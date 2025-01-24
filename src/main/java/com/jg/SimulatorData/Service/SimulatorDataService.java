@@ -25,11 +25,8 @@ public class SimulatorDataService {
     }
 
     public SimulatorData saveData(SimulatorData simulatorData) throws GeneralSecurityException, IOException {
-        List<String> carAndTrack = GoogleService.getCarAndTrack();
         simulatorDataRepository.save(simulatorData);
-        if (carAndTrack.get(0).contains(simulatorData.getCar()) && carAndTrack.get(1).contains(simulatorData.getTrack())){
-            GoogleService.unfilteredData(simulatorData);
-        }
+        GoogleService.unfilteredData(simulatorData);
         return(simulatorData);
     }
 
