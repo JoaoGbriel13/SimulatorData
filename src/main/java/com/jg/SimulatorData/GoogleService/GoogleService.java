@@ -165,6 +165,7 @@ public class GoogleService {
 
     private static List<Object> getValuesList(SimulatorData simulatorData){
         List<Object> values = Arrays.stream(simulatorData.getClass().getDeclaredFields())
+                .filter(field -> !field.getName().equalsIgnoreCase("id"))
                 .peek(field -> field.setAccessible(true))
                 .map(field -> {
                     try {
