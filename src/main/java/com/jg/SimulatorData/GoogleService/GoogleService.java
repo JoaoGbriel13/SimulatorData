@@ -54,8 +54,10 @@ public class GoogleService {
         List<List<Object>> values = response.getValues();
 
         int nextEmptyRow = findNextEmptyRow(values);
-        String formattedAvgFuelDry = String.format(Locale.US, "%.2f", avgFuel.getFuelDry());
-        String formattedAvgFuelWet = String.format(Locale.US, "%.2f", avgFuel.getFuelRain());
+        String formattedAvgFuelDry = String.format(Locale.US, "%.2f",
+                avgFuel.getFuelDry() != null ? avgFuel.getFuelDry() : 0.0);
+        String formattedAvgFuelWet = String.format(Locale.US, "%.2f",
+                avgFuel.getFuelRain() != null ? avgFuel.getFuelRain() : 0.0);
         int nameExistsRow = checkIfNameExists(values, simulatorData.getDriver());
 
         BatchUpdateValuesRequest body;
