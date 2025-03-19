@@ -48,8 +48,8 @@ public class GoogleService {
 
     public static void writeData(SimulatorData simulatorData, FuelAverageDTO avgFuel, String avgLap) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
-
-        String range = "DriversDB!A:A";
+        String session = getSession(simulatorData.getSession());
+        String range = STR."\{session}!A:A";
         ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
         List<List<Object>> values = response.getValues();
 
@@ -85,6 +85,15 @@ public class GoogleService {
         }
         service.spreadsheets().values().batchUpdate(SPREADSHEET_ID, body).execute();
     }
+
+    private static String getSession(String session) {
+        if (session.equalsIgnoreCase("RACE")){
+            return "RaceStint";
+        }else {
+            return "DriversDB";
+        }
+    }
+
     public static int findNextEmptyRow(List<List<Object>> values) {
         if (values == null || values.isEmpty()) {
             return 1; //
