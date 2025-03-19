@@ -188,8 +188,8 @@ public class GoogleService {
 
     public static List<String> getCarAndTrack() throws GeneralSecurityException, IOException {
         Sheets sheetsService = getGoogleSheetService();
-        String carRange = "Stints!J10:J10";
-        String trackRange = "Stints!L10:L10";
+        String carRange = "Stints Schedule!J10:J10";
+        String trackRange = "Stints Schedule!L10:L10";
         List<String> carTrackList = new ArrayList<>();
 
         ValueRange carValueRange = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, carRange).execute();
