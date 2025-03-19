@@ -26,7 +26,9 @@ public class SimulatorDataService {
 
     public SimulatorData saveData(SimulatorData simulatorData) throws GeneralSecurityException, IOException {
         simulatorDataRepository.save(simulatorData);
-        if(simulatorData.getFuelUsed() > 0){
+        List<String> carAndTrack = GoogleService.getCarAndTrack();
+        if(simulatorData.getFuelUsed() > 0 && carAndTrack.get(0).toLowerCase().contains(simulatorData.getCar().toLowerCase()) &&
+        carAndTrack.get(1).toLowerCase().contains(simulatorData.getTrack().toLowerCase())){
             FuelAverageDTO fuelAverageDTO = simulatorDataRepository.getFuelAverage(simulatorData.getCar(),
                             simulatorData.getTrack(), simulatorData.getDriver()).get();
             String lapAvgFormatted = formatLapTime(simulatorDataRepository.getLapTimeAVG(
