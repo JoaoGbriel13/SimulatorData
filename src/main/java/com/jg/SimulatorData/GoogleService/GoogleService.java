@@ -13,6 +13,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.jg.SimulatorData.DTO.FuelAverageDTO;
 import com.jg.SimulatorData.Model.SimulatorData;
 import com.jg.SimulatorData.Utils.TokenManager;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class GoogleService {
     private static final String APP_NAME = "Sheets Automation";
     private static final String SPREADSHEET_ID = "1A8DfijhqqgSZGANv0H7_oh8Z0lFOpT-PjOu46pyOhiA";
