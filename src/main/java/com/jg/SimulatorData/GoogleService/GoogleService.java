@@ -247,18 +247,19 @@ public class GoogleService {
         List<List<Object>> startTimes = startTimeResponse.getValues();
         List<List<Object>> offsets = offsetResponse.getValues();
 
-        // Garantir que offsets não seja null
+        // Verifica se offsets é null ou está vazio e inicializa uma lista vazia se necessário
         if (offsets == null) {
             offsets = new ArrayList<>();
         }
 
         // Itera sobre os startTimes e verifica se o offset correspondente está vazio
         for (int i = 0; i < startTimes.size(); i++) {
-            // Se não houver offset ou se ele já estiver preenchido, ignoramos
-            if (i >= offsets.size() || !offsets.get(i).isEmpty()) {
+            // Se o offset já estiver preenchido, ignora essa linha
+            if (i < offsets.size() && !offsets.get(i).isEmpty()) {
                 continue; // Pula a linha se já tiver offset
             }
 
+            // Calcula o offset para a linha atual
             LocalDateTime startTime = LocalDateTime.parse(startTimes.get(i).get(0).toString());
             Duration offset = Duration.between(startTime, pitTime);
 
