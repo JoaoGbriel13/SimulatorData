@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -220,12 +221,13 @@ public class GoogleService {
     public boolean checkRaceDay(LocalDate eventDate) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
         String range = "Stints Schedule!J7";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
         List<List<Object>> values = response.getValues();
 
         if (values != null && !values.isEmpty() && !values.get(0).isEmpty()) {
-            LocalDate raceDay = LocalDate.parse(values.get(0).get(0).toString());
+            LocalDate raceDay = LocalDate.parse(values.get(0).get(0).toString(), formatter);
             return raceDay.equals(eventDate);
         }
 
