@@ -238,8 +238,8 @@ public class GoogleService {
         Sheets service = getGoogleSheetService();
 
         // Buscar os horários da coluna K (StartTime) e os offsets da coluna L (Offset)
-        String startTimeRange = "Stints Schedule!K25:K";  // Horários de início
-        String offsetRange = "Stints Schedule!L25:L";    // Offset
+        String startTimeRange = "Stints Schedule!K25:K";
+        String offsetRange = "Stints Schedule!L25:L";
 
         ValueRange startTimeResponse = service.spreadsheets().values().get(SPREADSHEET_ID, startTimeRange).execute();
         ValueRange offsetResponse = service.spreadsheets().values().get(SPREADSHEET_ID, offsetRange).execute();
@@ -247,29 +247,33 @@ public class GoogleService {
         List<List<Object>> startTimes = startTimeResponse.getValues();
         List<List<Object>> offsets = offsetResponse.getValues();
 
+        // Garantir que offsets não seja null
+        if (offsets == null) {
+            offsets = new ArrayList<>();
+        }
+
+        // Itera sobre os startTimes e verifica se o offset correspondente está vazio
         for (int i = 0; i < startTimes.size(); i++) {
-            if (startTimes.get(i).isEmpty()) {
-                continue; // Pula linhas vazias na coluna K (StartTime)
+            // Se não houver offset ou se ele já estiver preenchido, ignoramos
+            if (i >= offsets.size() || !offsets.get(i).isEmpty()) {
+                continue; // Pula a linha se já tiver offset
             }
 
-            // Verificar se a célula da coluna de "Offset" está vazia ou nula
-            if (i >= offsets.size() || offsets.get(i).isEmpty() || offsets.get(i).get(0) == null) {
-                // Calcular o offset
-                LocalDateTime startTime = LocalDateTime.parse(startTimes.get(i).get(0).toString());
-                Duration offset = Duration.between(startTime, pitTime);
+            LocalDateTime startTime = LocalDateTime.parse(startTimes.get(i).get(0).toString());
+            Duration offset = Duration.between(startTime, pitTime);
 
-                String formattedOffset = String.format("%02d:%02d:%02d",
-                        offset.toHours(),
-                        offset.toMinutesPart(),
-                        offset.toSecondsPart());
+            // Formata o offset como HH:mm:ss
+            String formattedOffset = String.format("%02d:%02d:%02d",
+                    offset.toHours(),
+                    offset.toMinutesPart(),
+                    offset.toSecondsPart());
 
-                // Atualizar o primeiro offset vazio encontrado
-                String updateRange = "Stints Schedule!L" + (25 + i); // Linha começa em 25
-                ValueRange body = new ValueRange().setValues(Collections.singletonList(Collections.singletonList(formattedOffset)));
-                service.spreadsheets().values().update(SPREADSHEET_ID, updateRange, body).setValueInputOption("USER_ENTERED").execute();
+            // Atualiza o offset da célula correspondente
+            String updateRange = "Stints Schedule!L" + (25 + i); // Linha começa em 25
+            ValueRange body = new ValueRange().setValues(Collections.singletonList(Collections.singletonList(formattedOffset)));
+            service.spreadsheets().values().update(SPREADSHEET_ID, updateRange, body).setValueInputOption("USER_ENTERED").execute();
 
-                return true; // Offset atualizado
-            }
+            return true; // Offset atualizado com sucesso
         }
 
         return false; // Nenhum offset foi atualizado

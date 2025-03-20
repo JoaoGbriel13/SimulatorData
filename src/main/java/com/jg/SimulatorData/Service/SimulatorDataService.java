@@ -35,7 +35,6 @@ public class SimulatorDataService {
             GoogleService.writeData(simulatorData, fuelAverageDTO, lapAvgFormatted);
 
         }
-        GoogleService.unfilteredData(simulatorData);
         return (simulatorData);
     }
 
