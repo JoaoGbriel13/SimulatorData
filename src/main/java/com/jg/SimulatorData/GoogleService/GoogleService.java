@@ -252,6 +252,9 @@ public class GoogleService {
             offsets = new ArrayList<>();
         }
 
+        // Definir o formato esperado da hora (sem data)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
         // Itera sobre os startTimes e verifica se o offset correspondente está vazio
         for (int i = 0; i < startTimes.size(); i++) {
             // Se o offset já estiver preenchido, ignora essa linha
@@ -259,8 +262,11 @@ public class GoogleService {
                 continue; // Pula a linha se já tiver offset
             }
 
-            // Calcula o offset para a linha atual
-            LocalDateTime startTime = LocalDateTime.parse(startTimes.get(i).get(0).toString());
+            // Obtém o horário de início e adiciona a data atual para formar um LocalDateTime completo
+            String startTimeStr = startTimes.get(i).get(0).toString();
+            LocalDateTime startTime = LocalDateTime.parse(LocalDate.now().toString() + "T" + startTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+            // Calcula a diferença (offset) entre o horário de início e o pitTime
             Duration offset = Duration.between(startTime, pitTime);
 
             // Formata o offset como HH:mm:ss
