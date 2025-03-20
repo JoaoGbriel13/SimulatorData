@@ -30,7 +30,13 @@ public class SimulatorDataControler {
         return ResponseEntity.ok(simulatorDataService.saveData(simulatorData));
     }
     @PostMapping("/pitstop")
-    public ResponseEntity<String> sendPitTime(@RequestBody LocalDateTime pitTime) throws GeneralSecurityException, IOException {
+    public ResponseEntity<String> sendPitTime(@RequestBody PitStopRequest request) throws GeneralSecurityException, IOException {
+        LocalDateTime pitTime = request.getPitTime();
+
+        if (pitTime == null) {
+            return ResponseEntity.badRequest().body("O campo pitTime é obrigatório.");
+        }
+
         boolean isRaceDay = googleService.checkRaceDay(pitTime.toLocalDate());
 
         if (!isRaceDay) {
