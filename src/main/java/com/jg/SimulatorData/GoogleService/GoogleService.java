@@ -18,6 +18,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -210,6 +214,57 @@ public class GoogleService {
             }
         }
         return carTrackList;
+    }
+    public boolean checkRaceDay(LocalDate eventDate) throws GeneralSecurityException, IOException {
+        Sheets service = getGoogleSheetService();
+        String range = "Stints Schedule!J7";
+
+        ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
+        List<List<Object>> values = response.getValues();
+
+        if (values != null && !values.isEmpty() && !values.get(0).isEmpty()) {
+            LocalDate raceDay = LocalDate.parse(values.get(0).get(0).toString());
+            return raceDay.equals(eventDate);
+        }
+
+        return false;
+    }
+
+    public boolean updatePitStopOffset(LocalDateTime pitTime) throws GeneralSecurityException, IOException {
+        Sheets service = getGoogleSheetService();
+
+        // Buscar os horários da coluna K (StartTime) e os offsets da coluna L (Offset)
+        String startTimeRange = "Stints Schedule!K25:K";
+        String offsetRange = "Stints Schedule!L25:L";
+
+        ValueRange startTimeResponse = service.spreadsheets().values().get(SPREADSHEET_ID, startTimeRange).execute();
+        ValueRange offsetResponse = service.spreadsheets().values().get(SPREADSHEET_ID, offsetRange).execute();
+
+        List<List<Object>> startTimes = startTimeResponse.getValues();
+        List<List<Object>> offsets = offsetResponse.getValues();
+
+        for (int i = 0; i < startTimes.size(); i++) {
+            if (startTimes.get(i).isEmpty() || i >= offsets.size() || !offsets.get(i).isEmpty()) {
+                continue; // Pula linhas que já possuem offset
+            }
+
+            LocalDateTime startTime = LocalDateTime.parse(startTimes.get(i).get(0).toString());
+            Duration offset = Duration.between(startTime, pitTime);
+
+            String formattedOffset = String.format("%02d:%02d:%02d",
+                    offset.toHours(),
+                    offset.toMinutesPart(),
+                    offset.toSecondsPart());
+
+            // Atualizar o primeiro offset vazio encontrado
+            String updateRange = "Stints Schedule!L" + (25 + i); // Linha começa em 25
+            ValueRange body = new ValueRange().setValues(Collections.singletonList(Collections.singletonList(formattedOffset)));
+            service.spreadsheets().values().update(SPREADSHEET_ID, updateRange, body).setValueInputOption("USER_ENTERED").execute();
+
+            return true;
+        }
+
+        return false; // Nenhum offset foi atualizado
     }
 
 }
