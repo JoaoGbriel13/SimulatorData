@@ -238,52 +238,33 @@ public class GoogleService {
         Sheets service = getGoogleSheetService();
 
         // Buscar os horários da coluna K (StartTime) e os offsets da coluna L (Offset)
-        String startTimeRange = "Stints Schedule!K25:K";
-        String offsetRange = "Stints Schedule!L25:L";
+        String endTimeRange = "Stints Schedule!Q26:Q";
 
-        ValueRange startTimeResponse = service.spreadsheets().values().get(SPREADSHEET_ID, startTimeRange).execute();
-        ValueRange offsetResponse = service.spreadsheets().values().get(SPREADSHEET_ID, offsetRange).execute();
-
-        List<List<Object>> startTimes = startTimeResponse.getValues();
-        List<List<Object>> offsets = offsetResponse.getValues();
-
-        // Verifica se offsets é null ou está vazio e inicializa uma lista vazia se necessário
-        if (offsets == null) {
-            offsets = new ArrayList<>();
-        }
-
+        ValueRange endTimeResponse = service.spreadsheets().values().get(SPREADSHEET_ID, endTimeRange).execute();
+        List<List<Object>> endTimesList = endTimeResponse.getValues();
         // Definir o formato esperado da hora (sem data)
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        // Itera sobre os startTimes e verifica se o offset correspondente está vazio
-        for (int i = 0; i < startTimes.size(); i++) {
-            // Se o offset já estiver preenchido, ignora essa linha
-            if (i < offsets.size() && !offsets.get(i).isEmpty()) {
-                continue; // Pula a linha se já tiver offset
-            }
+        for (int i = 0; i < endTimesList.size(); i++) {
+            String endTimeStr = endTimesList.get(i).get(0).toString();
+            LocalDateTime endTime = LocalDateTime.parse(LocalDate.now() + "T" + endTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-            // Obtém o horário de início e adiciona a data atual para formar um LocalDateTime completo
-            String startTimeStr = startTimes.get(i).get(0).toString();
-            LocalDateTime startTime = LocalDateTime.parse(LocalDate.now().toString() + "T" + startTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-            // Calcula a diferença (offset) entre o horário de início e o pitTime
-            Duration offset = Duration.between(startTime, pitTime);
 
             // Formata o offset como HH:mm:ss
             String formattedOffset = String.format("%02d:%02d:%02d",
-                    offset.toHours(),
-                    offset.toMinutesPart(),
-                    offset.toSecondsPart());
+                    endTime.getHour(),
+                    endTime.getMinute(),
+                    endTime.getSecond());
 
             // Atualiza o offset da célula correspondente
-            String updateRange = "Stints Schedule!L" + (25 + i); // Linha começa em 25
+            String updateRange = "Stints Schedule!L" + (26 + i);
             ValueRange body = new ValueRange().setValues(Collections.singletonList(Collections.singletonList(formattedOffset)));
             service.spreadsheets().values().update(SPREADSHEET_ID, updateRange, body).setValueInputOption("USER_ENTERED").execute();
 
-            return true; // Offset atualizado com sucesso
+            return true;
         }
 
-        return false; // Nenhum offset foi atualizado
+        return false;
     }
 
 }
