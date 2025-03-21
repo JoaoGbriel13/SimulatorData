@@ -257,7 +257,7 @@ public class GoogleService {
                     endTime.getSecond());
 
             // Atualiza o offset da célula correspondente
-            String updateRange = "Stints Schedule!L" + (26 + i);
+            String updateRange = "Stints Schedule!Q" + (26 + i);
             ValueRange body = new ValueRange().setValues(Collections.singletonList(Collections.singletonList(formattedOffset)));
             service.spreadsheets().values().update(SPREADSHEET_ID, updateRange, body).setValueInputOption("USER_ENTERED").execute();
 
