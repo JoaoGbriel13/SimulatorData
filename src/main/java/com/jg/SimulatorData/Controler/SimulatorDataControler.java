@@ -5,10 +5,7 @@ import com.jg.SimulatorData.GoogleService.GoogleService;
 import com.jg.SimulatorData.Model.SimulatorData;
 import com.jg.SimulatorData.Service.SimulatorDataService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -29,7 +26,7 @@ public class SimulatorDataControler {
     public ResponseEntity<SimulatorData> sendData(@RequestBody SimulatorData simulatorData) throws GeneralSecurityException, IOException {
         return ResponseEntity.ok(simulatorDataService.saveData(simulatorData));
     }
-    @PostMapping("/pitstop")
+    @PutMapping("/pitstop")
     public ResponseEntity<String> sendPitTime(@RequestBody PitStopRequest request) throws GeneralSecurityException, IOException {
         LocalDateTime pitTime = request.getPitTime();
 
