@@ -34,7 +34,8 @@ public class GoogleService {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKEN = TokenManager.getGoogleCredentials();
 
-    public static Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {;
+    public static Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
+        ;
         GoogleCredentials credentials;
         try {
             credentials = GoogleCredentials.fromStream(
@@ -96,9 +97,9 @@ public class GoogleService {
     }
 
     private static String getSession(String session) {
-        if (session.equalsIgnoreCase("RACE")){
+        if (session.equalsIgnoreCase("RACE")) {
             return "RaceStint";
-        }else {
+        } else {
             return "DriversDB";
         }
     }
@@ -115,12 +116,11 @@ public class GoogleService {
         return values.size() + 1;
     }
 
-    public static ValueRange fillConditionsColumn(String condition, String avgLap, int row){
+    public static ValueRange fillConditionsColumn(String condition, String avgLap, int row) {
         return switch (condition.toLowerCase()) {
-            case "dry" ->
-                    new ValueRange().setRange("DriversDB!H" + row + ":H" + row).setValues(
-                            List.of(Collections.singletonList(avgLap))
-                    );
+            case "dry" -> new ValueRange().setRange("DriversDB!H" + row + ":H" + row).setValues(
+                    List.of(Collections.singletonList(avgLap))
+            );
             case "mostly dry" -> new ValueRange().setRange("DriversDB!J" + row + ":J" + row).setValues(
                     List.of(Collections.singletonList(avgLap))
             );
@@ -155,10 +155,10 @@ public class GoogleService {
                 .setValueInputOption("USER_ENTERED")
                 .setData(
                         Arrays.asList(
-                               new ValueRange()
-                                       .setRange("DB!A" + nextEmptyRow + ":N" + nextEmptyRow)
-                                       .setValues(Collections.singletonList(insertableValues)
-                                       )
+                                new ValueRange()
+                                        .setRange("DB!A" + nextEmptyRow + ":N" + nextEmptyRow)
+                                        .setValues(Collections.singletonList(insertableValues)
+                                        )
                         )
                 );
         sheetsService.spreadsheets().values().batchUpdate(SPREADSHEET_ID, request).execute();
@@ -181,7 +181,7 @@ public class GoogleService {
         return -1;
     }
 
-    private static List<Object> getValuesList(SimulatorData simulatorData){
+    private static List<Object> getValuesList(SimulatorData simulatorData) {
         List<Object> values = Arrays.stream(simulatorData.getClass().getDeclaredFields())
                 .filter(field -> !field.getName().equalsIgnoreCase("id"))
                 .peek(field -> field.setAccessible(true))
@@ -207,17 +207,18 @@ public class GoogleService {
         List<List<Object>> carValues = carValueRange.getValues();
         List<List<Object>> trackValues = trackValueRange.getValues();
 
-        for (int i = 0; i < carValues.size(); i++){
+        for (int i = 0; i < carValues.size(); i++) {
             List<Object> carRow = carValues.get(i);
             List<Object> trackRow = trackValues.get(i);
 
-            if (!carRow.isEmpty() && !trackRow.isEmpty()){
+            if (!carRow.isEmpty() && !trackRow.isEmpty()) {
                 carTrackList.add(carRow.get(i).toString());
                 carTrackList.add(trackRow.get(i).toString());
             }
         }
         return carTrackList;
     }
+
     public boolean checkRaceDay(LocalDate eventDate) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
         String range = "Stints Schedule!J7";
@@ -237,34 +238,47 @@ public class GoogleService {
     public boolean updatePitStopOffset(LocalDateTime pitTime) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
 
-        // Buscar os horários da coluna K (StartTime) e os offsets da coluna L (Offset)
-        String endTimeRange = "Stints Schedule!Q26:Q";
+        String endTimeRange = "Stints Schedule!Q25:Q";
+        String offSetRange = "Stints Schedule!L26:L";
 
         ValueRange endTimeResponse = service.spreadsheets().values().get(SPREADSHEET_ID, endTimeRange).execute();
+        ValueRange offSetResponse = service.spreadsheets().values().get(SPREADSHEET_ID, offSetRange).execute();
+
         List<List<Object>> endTimesList = endTimeResponse.getValues();
-        // Definir o formato esperado da hora (sem data)
+        List<List<Object>> offSetList = offSetResponse.getValues();
+
+        if (offSetList == null) {
+            offSetList = new ArrayList<>();
+        }
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        for (int i = 0; i < endTimesList.size(); i++) {
-            String endTimeStr = endTimesList.get(i).get(0).toString();
-            LocalDateTime endTime = LocalDateTime.parse(LocalDate.now() + "T" + endTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        for (int i = 1; i < endTimesList.size(); i++) { // Começa do índice 1 porque a linha 1 não tem referência anterior
+            if (i - 1 < offSetList.size() && !offSetList.get(i - 1).isEmpty()) {
+                continue;
+            }
 
+            String previousEndTimeStr = endTimesList.get(i - 1).get(0).toString();
+            LocalTime previousEndTime = LocalTime.parse(previousEndTimeStr, formatter);
+            LocalDateTime previousEndDateTime = LocalDateTime.of(pitTime.toLocalDate(), previousEndTime);
 
-            // Formata o offset como HH:mm:ss
-            String formattedOffset = String.format("%02d:%02d:%02d",
-                    endTime.getHour(),
-                    endTime.getMinute(),
-                    endTime.getSecond());
+            Duration offsetDuration = Duration.between(previousEndDateTime, pitTime);
 
-            // Atualiza o offset da célula correspondente
-            String updateRange = "Stints Schedule!Q" + (26 + i);
+            boolean isBefore = offsetDuration.isNegative();
+            long hours = Math.abs(offsetDuration.toHours());
+            long minutes = Math.abs(offsetDuration.toMinutes() % 60);
+            long seconds = Math.abs(offsetDuration.getSeconds() % 60);
+
+            String formattedOffset = String.format("%s%02d:%02d:%02d", isBefore ? "-" : "", hours, minutes, seconds);
+
+            // Atualiza a célula correspondente na coluna L (Offset)
+            String updateOffSetRange = "Stints Schedule!L" + (26 + i - 1);
             ValueRange body = new ValueRange().setValues(Collections.singletonList(Collections.singletonList(formattedOffset)));
-            service.spreadsheets().values().update(SPREADSHEET_ID, updateRange, body).setValueInputOption("USER_ENTERED").execute();
+            service.spreadsheets().values().update(SPREADSHEET_ID, updateOffSetRange, body).setValueInputOption("USER_ENTERED").execute();
 
             return true;
         }
 
         return false;
     }
-
 }
