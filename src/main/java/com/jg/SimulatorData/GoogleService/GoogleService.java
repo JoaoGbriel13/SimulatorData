@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +34,8 @@ public class GoogleService {
     private static final String SPREADSHEET_ID = "1A8DfijhqqgSZGANv0H7_oh8Z0lFOpT-PjOu46pyOhiA";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKEN = TokenManager.getGoogleCredentials();
+    private static final long COOLDOWN_PERIOD = 2 * 60 * 1000; // 2 minutos em milissegundos
+    private final AtomicLong lastExecutionTime = new AtomicLong(0);
 
     public static Sheets getGoogleSheetService() throws GeneralSecurityException, IOException {
         ;
@@ -56,8 +59,7 @@ public class GoogleService {
 
     public static void writeData(SimulatorData simulatorData, FuelAverageDTO avgFuel, String avgLap) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
-        String session = getSession(simulatorData.getSession());
-        String range = session + "!A:A";
+        String range = "DriversDB!A:A";
         ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
         List<List<Object>> values = response.getValues();
 
@@ -96,13 +98,6 @@ public class GoogleService {
         service.spreadsheets().values().batchUpdate(SPREADSHEET_ID, body).execute();
     }
 
-    private static String getSession(String session) {
-        if (session.equalsIgnoreCase("RACE")) {
-            return "RaceStint";
-        } else {
-            return "DriversDB";
-        }
-    }
 
     public static int findNextEmptyRow(List<List<Object>> values) {
         if (values == null || values.isEmpty()) {
@@ -235,7 +230,18 @@ public class GoogleService {
         return false;
     }
 
-    public boolean updatePitStopOffset(LocalDateTime pitTime) throws GeneralSecurityException, IOException {
+    public synchronized boolean updatePitStopOffset(LocalDateTime pitTime) throws GeneralSecurityException, IOException {
+        long currentTime = System.currentTimeMillis();
+
+        // Verifica se o tempo decorrido desde a última execução é menor que o cooldown
+        if (currentTime - lastExecutionTime.get() < COOLDOWN_PERIOD) {
+            System.out.println("Aguarde antes de chamar novamente.");
+            return false;
+        }
+
+        lastExecutionTime.set(currentTime); // Atualiza o tempo da última execução
+
+        // Aqui vai a sua lógica original da função...
         Sheets service = getGoogleSheetService();
 
         String endTimeRange = "Stints Schedule!Q25:Q";
@@ -253,7 +259,7 @@ public class GoogleService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        for (int i = 1; i < endTimesList.size(); i++) { // Começa do índice 1 porque a linha 1 não tem referência anterior
+        for (int i = 1; i < endTimesList.size(); i++) {
             if (i - 1 < offSetList.size() && !offSetList.get(i - 1).isEmpty()) {
                 continue;
             }

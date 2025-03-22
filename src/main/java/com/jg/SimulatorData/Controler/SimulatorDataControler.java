@@ -4,6 +4,7 @@ import com.jg.SimulatorData.DTO.PitStopRequest;
 import com.jg.SimulatorData.GoogleService.GoogleService;
 import com.jg.SimulatorData.Model.SimulatorData;
 import com.jg.SimulatorData.Service.SimulatorDataService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,10 +43,10 @@ public class SimulatorDataControler {
 
         boolean success = googleService.updatePitStopOffset(pitTime);
 
-        if (success) {
-            return ResponseEntity.ok("Offset atualizado com sucesso.");
-        } else {
-            return ResponseEntity.badRequest().body("Não foi possível atualizar o offset.");
+        if (!success) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Aguarde antes de chamar novamente.");
         }
+
+        return ResponseEntity.ok("Offset atualizado com sucesso.");
     }
 }
