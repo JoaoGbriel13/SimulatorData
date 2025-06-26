@@ -24,24 +24,24 @@ public class SimulatorDataControler {
     }
 
     @PostMapping
-    public ResponseEntity<SimulatorData> sendData(@RequestBody SimulatorData simulatorData) throws GeneralSecurityException, IOException {
-        return ResponseEntity.ok(simulatorDataService.saveData(simulatorData));
+    public ResponseEntity<SimulatorData> sendData(@RequestBody SimulatorData simulatorData, @RequestBody String sheetID) throws GeneralSecurityException, IOException {
+        return ResponseEntity.ok(simulatorDataService.saveData(simulatorData, sheetID));
     }
     @PutMapping("/pitstop")
-    public ResponseEntity<String> sendPitTime(@RequestBody PitStopRequest request) throws GeneralSecurityException, IOException {
+    public ResponseEntity<String> sendPitTime(@RequestBody PitStopRequest request, @RequestBody String sheetID) throws GeneralSecurityException, IOException {
         LocalDateTime pitTime = request.getPitTime();
 
         if (pitTime == null) {
             return ResponseEntity.badRequest().body("O campo pitTime é obrigatório.");
         }
 
-        boolean isRaceDay = googleService.checkRaceDay(pitTime.toLocalDate());
+        boolean isRaceDay = googleService.checkRaceDay(pitTime.toLocalDate(), sheetID);
 
         if (!isRaceDay) {
             return ResponseEntity.badRequest().body("A corrida não está acontecendo hoje.");
         }
 
-        boolean success = googleService.updatePitStopOffset(pitTime);
+        boolean success = googleService.updatePitStopOffset(pitTime, sheetID);
 
         if (!success) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Aguarde antes de chamar novamente.");
