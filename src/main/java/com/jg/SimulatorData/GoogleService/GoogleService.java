@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 public class GoogleService {
     private static final String APP_NAME = "Sheets Automation";
-    private static final String SPREADSHEET_ID = "1A8DfijhqqgSZGANv0H7_oh8Z0lFOpT-PjOu46pyOhiA";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String TOKEN = TokenManager.getGoogleCredentials();
     private static final long COOLDOWN_PERIOD = 2 * 60 * 1000; // 2 minutos em milissegundos
@@ -57,7 +56,7 @@ public class GoogleService {
     }
 
 
-    public static void writeData(SimulatorData simulatorData, FuelAverageDTO avgFuel, String avgLap) throws GeneralSecurityException, IOException {
+    public static void writeData(SimulatorData simulatorData, FuelAverageDTO avgFuel, String avgLap, String SPREADSHEET_ID) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
         String range = "DriversDB!A:A";
         ValueRange response = service.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
@@ -138,7 +137,7 @@ public class GoogleService {
         };
     }
 
-    public static void unfilteredData(SimulatorData simulatorData) throws GeneralSecurityException, IOException {
+    public static void unfilteredData(SimulatorData simulatorData, String SPREADSHEET_ID) throws GeneralSecurityException, IOException {
         Sheets sheetsService = getGoogleSheetService();
         String range = "DB!A:A";
         ValueRange response = sheetsService.spreadsheets().values().get(SPREADSHEET_ID, range).execute();
@@ -190,7 +189,7 @@ public class GoogleService {
         return values;
     }
 
-    public static List<String> getCarAndTrack() throws GeneralSecurityException, IOException {
+    public static List<String> getCarAndTrack(String SPREADSHEET_ID) throws GeneralSecurityException, IOException {
         Sheets sheetsService = getGoogleSheetService();
         String carRange = "Stints Schedule!J10:J10";
         String trackRange = "Stints Schedule!L10:L10";
@@ -214,7 +213,7 @@ public class GoogleService {
         return carTrackList;
     }
 
-    public boolean checkRaceDay(LocalDate eventDate) throws GeneralSecurityException, IOException {
+    public boolean checkRaceDay(LocalDate eventDate, String SPREADSHEET_ID) throws GeneralSecurityException, IOException {
         Sheets service = getGoogleSheetService();
         String range = "Stints Schedule!J7";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -230,7 +229,7 @@ public class GoogleService {
         return false;
     }
 
-    public synchronized boolean updatePitStopOffset(LocalDateTime pitTime) throws GeneralSecurityException, IOException {
+    public synchronized boolean updatePitStopOffset(LocalDateTime pitTime, String SPREADSHEET_ID) throws GeneralSecurityException, IOException {
         long currentTime = System.currentTimeMillis();
 
         // Verifica se o tempo decorrido desde a última execução é menor que o cooldown
