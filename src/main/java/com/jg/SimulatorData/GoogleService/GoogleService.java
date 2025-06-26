@@ -176,8 +176,9 @@ public class GoogleService {
     }
 
     private static List<Object> getValuesList(SimulatorData simulatorData) {
-        List<Object> values = Arrays.stream(simulatorData.getClass().getDeclaredFields())
-                .filter(field -> !field.getName().equalsIgnoreCase("id"))
+        return Arrays.stream(simulatorData.getClass().getDeclaredFields())
+                .filter(field -> !field.getName().equalsIgnoreCase("id") &&
+                        !field.getName().equalsIgnoreCase("sheetID"))
                 .peek(field -> field.setAccessible(true))
                 .map(field -> {
                     try {
@@ -186,7 +187,6 @@ public class GoogleService {
                         throw new RuntimeException(e);
                     }
                 }).toList();
-        return values;
     }
 
     public static List<String> getCarAndTrack(String SPREADSHEET_ID) throws GeneralSecurityException, IOException {
