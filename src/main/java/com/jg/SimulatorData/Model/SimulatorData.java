@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tb_data")
+@Data
 public class SimulatorData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,13 +53,15 @@ public class SimulatorData {
 
     @JsonProperty("createdAt")
     private String createdAt;
+    @JsonProperty("sheetID")
+    private String sheetID;
 
     public SimulatorData(Long id, String driver, String track,
                          String car, String trackStateEnum,
                          BigDecimal lapTimeNumeric,
                          String lapTimeFormatted, BigDecimal topSpeed,
                          String session, double fuelTank, double fuelUsed, double trackTemp,
-                         double waterTemp, double oilTemp, String createdAt) {
+                         double waterTemp, double oilTemp, String createdAt, String sheetID) {
         this.id = id;
         this.driver = driver;
         this.track = track;
@@ -74,128 +77,10 @@ public class SimulatorData {
         this.waterTemp = waterTemp;
         this.oilTemp = oilTemp;
         this.createdAt = createdAt;
+        this.sheetID = sheetID;
     }
 
     public SimulatorData() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getDriver() {
-        return driver;
-    }
-
-    public void setDriver(String driver) {
-        this.driver = driver;
-    }
-
-    public String getTrack() {
-        return track;
-    }
-
-    public void setTrack(String track) {
-        this.track = track;
-    }
-
-    public String getCar() {
-        return car;
-    }
-
-    public void setCar(String car) {
-        this.car = car;
-    }
-
-    public String getTrackStateEnum() {
-        return trackStateEnum;
-    }
-
-    public void setTrackStateEnum(String trackStateEnum) {
-        this.trackStateEnum = trackStateEnum;
-    }
-
-    public BigDecimal getLapTimeNumeric() {
-        return lapTimeNumeric;
-    }
-
-    public void setLapTimeNumeric(BigDecimal lapTimeNumeric) {
-        this.lapTimeNumeric = lapTimeNumeric;
-    }
-
-    public String getLapTimeFormatted() {
-        return lapTimeFormatted;
-    }
-
-    public void setLapTimeFormatted(String lapTimeFormatted) {
-        this.lapTimeFormatted = lapTimeFormatted;
-    }
-
-    public BigDecimal getTopSpeed() {
-        return topSpeed;
-    }
-
-    public void setTopSpeed(BigDecimal topSpeed) {
-        this.topSpeed = topSpeed;
-    }
-
-    public String getSession() {
-        return session;
-    }
-
-    public void setSession(String session) {
-        this.session = session;
-    }
-
-    public double getFuelTank() {
-        return fuelTank;
-    }
-
-    public void setFuelTank(double fuelTank) {
-        this.fuelTank = fuelTank;
-    }
-
-    public double getFuelUsed() {
-        return fuelUsed;
-    }
-
-    public void setFuelUsed(double fuelUsed) {
-        this.fuelUsed = fuelUsed;
-    }
-
-    public double getTrackTemp() {
-        return trackTemp;
-    }
-
-    public void setTrackTemp(double trackTemp) {
-        this.trackTemp = trackTemp;
-    }
-
-    public double getWaterTemp() {
-        return waterTemp;
-    }
-
-    public void setWaterTemp(double waterTemp) {
-        this.waterTemp = waterTemp;
-    }
-
-    public double getOilTemp() {
-        return oilTemp;
-    }
-
-    public void setOilTemp(double oilTemp) {
-        this.oilTemp = oilTemp;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
 }

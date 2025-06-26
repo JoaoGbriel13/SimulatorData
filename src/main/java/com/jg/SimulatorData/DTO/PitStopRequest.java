@@ -1,31 +1,18 @@
 package com.jg.SimulatorData.DTO;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.time.LocalDateTime;
+@Data
+@AllArgsConstructor
 
 public class PitStopRequest {
     private LocalDateTime pitTime;
     private String message;
+    private String sheetID;
 
     public PitStopRequest() {}
 
-    public PitStopRequest(String message) {
-        this.message = message;
-    }
-
-    public LocalDateTime getPitTime() {
-        return pitTime;
-    }
-
-    public void setPitTime(LocalDateTime pitTime) {
-        this.pitTime = pitTime;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
 
