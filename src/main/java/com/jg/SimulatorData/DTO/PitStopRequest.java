@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 public class PitStopRequest {
     private LocalDateTime pitTime;
     private String message;
-    private String sheetID;
 
     public PitStopRequest() {}
 
