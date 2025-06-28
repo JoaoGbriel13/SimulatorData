@@ -25,6 +25,7 @@ public class SimulatorDataControler {
 
     @PostMapping
     public ResponseEntity<SimulatorData> sendData(@RequestBody SimulatorData simulatorData) throws GeneralSecurityException, IOException {
+        simulatorData.setSheetID(simulatorData.getSheetID().replace(" ", ""));
         return ResponseEntity.ok(simulatorDataService.saveData(simulatorData));
     }
     @PutMapping("/pitstop")
